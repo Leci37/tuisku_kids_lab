@@ -1,5 +1,33 @@
 # CHANGELOG
 
+## 1.2.2 — 2026-10-17
+
+Tres mejoras del firmware, de la revisión de en qué placas va y cómo aguanta
+una clase. La web, los juegos y la API siguen igual.
+
+- **Placa equivocada, un error claro.** Si en el IDE está elegida otra placa
+  que no sea la NodeMCU (1.0 o 0.9) o la Wemos D1 mini (normal, Lite o Pro),
+  la compilación se para con un solo error que dice cuál elegir. Antes sólo
+  lo hacía con la «Generic ESP8266 Module»: con la ESP8285 salían 18 errores
+  raros y con la Wemos D1 R1 compilaba con los pines en otro sitio (su D1 es
+  el TX y su D8, un pin de arranque). Vale con el núcleo 3.1.2 y con el 2.7.4,
+  que llaman distinto a la NodeMCU.
+- **Respuestas más rápidas.** La placa contesta en dos trozos (la cabecera y
+  luego el JSON) y el segundo esperaba a que el móvil confirmara el primero:
+  un viaje de más en cada pregunta. Ahora sale sin esperar (`setNoDelay`).
+  Cuánto se gana no está medido: hace falta una placa de verdad.
+- **El canal más libre.** Al arrancar, antes de crear su wifi, la placa
+  escucha las redes de alrededor (unos 2 segundos) y elige el canal 1, 6 u 11
+  con menos ruido; si empatan, decide su número de serie, para que varias
+  placas en una clase no se apilen. Antes, todas en el 1. Se puede dejar fijo
+  con `WIFI_AP_CHANNEL` en `config.h`. La cuenta va en `channel.h`, sin nada
+  de Arduino, y una prueba la compila en el ordenador.
+- Con el núcleo 3.1.2, el firmware pasa de 394 720 a 396 016 bytes de flash y
+  de 31 984 a 32 084 de RAM; la IRAM, igual. Compila sin avisos también con
+  la 2.7.4.
+- README y docs/NUEVO_INVENTO.md al día (D4 no está libre: es el latido de la
+  lucecita azul).
+
 ## 1.2.1 — 2026-10-06
 
 El diseño de Claude Design del 6 de octubre por la tarde. Su export va tal

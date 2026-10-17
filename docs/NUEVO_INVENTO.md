@@ -6,8 +6,9 @@ ahora sirven de modelo (el sonómetro es el más completo).
 
 ## 1. Los pines
 
-Los libres en la NodeMCU son **D0** (sin PWM ni interrupciones) y **D4** (lleva la
-lucecita azul de la placa y tiene que estar en alto al arrancar). D3 es el botón
+El libre en la NodeMCU es **D0** (sin PWM ni interrupciones). **D4** no: lleva la
+lucecita azul de la placa, que el firmware usa para su latido (y tiene que
+estar en alto al arrancar). D3 es el botón
 FLASH y D8 tiene que estar en bajo al arrancar: lo que se conecte ahí, que no lo
 cambie. Si hace falta más, un expansor I²C usaría D1 y D2 (hoy, el sensor de
 distancia). Se apuntan en [`laboratorio/config.h`](../laboratorio/config.h).
@@ -55,8 +56,10 @@ simulador y fallan si no coinciden.
 ```
 python tools/build_web.py     # mete la web en laboratorio/web_pages.h
 pytest                        # en verde
-arduino-cli compile --fqbn esp8266:esp8266:nodemcuv2 laboratorio
+arduino-cli compile --fqbn esp8266:esp8266:nodemcuv2 --warnings all laboratorio
 ```
+
+Sin avisos, con el núcleo 3.1.2 y también con el 2.7.4.
 
 Y una línea en el [CHANGELOG](../CHANGELOG.md), subiendo `LAB_VERSION` en
 `config.h`.

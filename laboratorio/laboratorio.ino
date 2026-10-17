@@ -19,6 +19,7 @@
 //   ghost.h      👻 el sensor de distancia
 //   buzzer.h     🔊 el zumbador
 //   network.h    📶 la wifi
+//   channel.h    📻 el canal más libre para su wifi
 //   records.h    🏆 los récords de la clase de ¡Salta, Chispa!, en la flash
 //   alias.h      ✏️ cómo se limpia el alias de un récord
 //   web_api.h    🌐 la web y sus órdenes

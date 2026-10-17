@@ -14,7 +14,7 @@ hace falta internet, ni cuentas, ni instalar nada.
 bombilla, es la mascota. Toda la web (87 kB comprimidos) está dentro del
 firmware.*
 
-Este README va con la versión **1.2.1** (ver [CHANGELOG.md](CHANGELOG.md)).
+Este README va con la versión **1.2.2** (ver [CHANGELOG.md](CHANGELOG.md)).
 Hoy el Laboratorio funciona solo, sin el núcleo `zlecitool-core`; cómo
 entraría en la plataforma está en [docs/PLATAFORMA.md](docs/PLATAFORMA.md).
 
@@ -208,6 +208,14 @@ Todos manejan las mismas luces, así que cada placa hace un invento a la vez.
 Con más aparatos, mejor la wifi de un router (`config.h`): ahí el límite de 8
 desaparece, aunque la placa sigue contestando de uno en uno.
 
+**El canal, el más libre.** Al arrancar, antes de crear su wifi, la placa
+escucha unos dos segundos las redes de alrededor y se pone en el canal 1, 6 u
+11 que menos ruido tenga: cuenta más una red fuerte que una lejana, y una en
+el 3 molesta al 1 y al 6. Si empatan (una sala sin redes, o varias placas que
+arrancan a la vez), decide el número de serie de cada placa, así que en una
+clase con varias no se apilan todas en el mismo. Se puede dejar fijo con
+`WIFI_AP_CHANNEL` en `config.h`. Con la wifi de casa, el canal es el del router.
+
 **Se monta:** nada.
 
 ### 📱 En el móvil
@@ -237,7 +245,7 @@ programa; el esquema se desliza de lado; el juego pide girar el móvil.
 - **El simulador** (`tools/simulador.py`): la misma lógica que el firmware, en
   Python, con un micrófono y un sensor de mentira. Sirve para tocar la web sin
   placa y para las pruebas.
-- **Las pruebas:** 163, con pytest y Chromium: que el firmware, el simulador y
+- **Las pruebas:** 169, con pytest y Chromium: que el firmware, el simulador y
   la web dicen lo mismo (las órdenes, la forma del estado, los ajustes; el
   alias de los récords se compara compilando el del firmware), los bloques
   ejecutándose (también los «⚡ cuando…» a la vez), el juego con cada mando y
@@ -271,8 +279,8 @@ arranca.
 
 ### ¿En qué placa va?
 
-En un **ESP8266** con los pines de la NodeMCU. El firmware ocupa poco: 395 kB
-de su mega de programa (37 %), 32 kB de RAM (39 %; del Laboratorio, unos 4
+En un **ESP8266** con los pines de la NodeMCU. El firmware ocupa poco: 396 kB
+de su mega de programa (37 %), 32 kB de RAM (40 %; del Laboratorio, unos 4
 kB: el resto es la wifi del núcleo) y la web, 87 kB comprimidos que se mandan
 desde la flash a trozos, sin gastar RAM. Al arrancar quedan unos 49 kB para la
 wifi y las conexiones.
@@ -288,9 +296,11 @@ código de verdad quedan 3,8 kB, casi todo del núcleo.
 | **ESP-01 / ESP-01S** | No | Sólo cuatro pines y ninguno analógico: no caben las luces, el sensor y el micrófono. |
 
 Compilado con el núcleo ESP8266 3.1.2 para la NodeMCU 1.0 y 0.9, la D1 mini,
-la D1 mini Lite (1 MB) y la D1 mini Pro: el mismo tamaño en todas. Con la
-placa «Generic ESP8266 Module» se para a propósito (`config.h`), porque esa
-no tiene los nombres D1…D8.
+la D1 mini Lite (1 MB) y la D1 mini Pro: el mismo tamaño en todas. Con
+cualquier otra placa elegida en el IDE (la «Generic ESP8266 Module», la
+ESP8285, la D1 R1…) se para a propósito con un solo error que dice cuál
+elegir (`config.h`): esas no tienen los nombres D1…D8, o los tienen en otros
+pines.
 
 ## Cargar la placa
 
@@ -375,6 +385,7 @@ laboratorio/           el firmware (una pestaña del IDE por parte)
 ├── ghost.h            👻 el sensor de distancia
 ├── buzzer.h           🔊 el zumbador
 ├── network.h          📶 la wifi, el portal cautivo y laboratorio.local
+├── channel.h          📻 el canal más libre para su wifi (sin nada de Arduino)
 ├── records.h          🏆 los récords de la clase, en la flash
 ├── alias.h            ✏️ cómo se limpia el alias de un récord (sin nada de Arduino)
 ├── web_api.h          🌐 la web y la API
@@ -421,7 +432,7 @@ in the board's flash (/api/records, /api/record). The board hosts its own Wi-Fi
 with a captive portal and serves a kid-friendly web app (Spanish) with live
 controls, wiring diagrams and a Scratch-like block editor that runs sequences
 on the board. No external Arduino libraries are needed. A JSON/CORS API makes
-it scriptable; a Python simulator and 163 pytest/Playwright tests cover the
+it scriptable; a Python simulator and 169 pytest/Playwright tests cover the
 web, the API, the records and the games. How it would join the zlecitool platform (boards
 as core "devices", schools as organisations, AI that writes block programs):
 docs/PLATAFORMA.md.

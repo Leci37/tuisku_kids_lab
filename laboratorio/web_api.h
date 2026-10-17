@@ -309,6 +309,10 @@ void webBegin() {
   server.on("/api/record", HTTP_GET, handleRecord);
   server.onNotFound(handleNotFound);
   server.begin();
+  // Cada respuesta sale en dos trozos (la cabecera y luego el JSON). Sin esto,
+  // el segundo espera a que el móvil confirme el primero, y cada pregunta a la
+  // placa tarda un viaje de más.
+  server.getServer().setNoDelay(true);
 }
 
 void webLoop() {

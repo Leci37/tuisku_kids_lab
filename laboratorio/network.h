@@ -10,11 +10,13 @@
 #include <ESP8266mDNS.h>
 #include <DNSServer.h>
 
+#include "channel.h"
 #include "config.h"
 
 // Una contraseña de wifi de menos de 8 letras no vale: la placa no crearía la wifi.
 static_assert(sizeof(WIFI_AP_PASSWORD) == 1 || sizeof(WIFI_AP_PASSWORD) > 8,
               "La contraseña de WIFI_AP_PASSWORD necesita 8 letras o más (o déjala vacía)");
+static_assert(WIFI_AP_CHANNEL >= 0 && WIFI_AP_CHANNEL <= 13, "WIFI_AP_CHANNEL va del 1 al 13 (o 0: el más libre)");
 
 const unsigned long HOME_WIFI_TIMEOUT_MS = 15000;
 const IPAddress AP_IP(192, 168, 4, 1);
@@ -51,13 +53,36 @@ bool joinHomeWifi() {
   return true;
 }
 
+// El canal más libre para la wifi de la placa: escucha las redes de alrededor
+// (unos 2 segundos, sólo al arrancar) y se lo pregunta a channel.h.
+uint8_t quietChannel() {
+  if (WIFI_AP_CHANNEL > 0) return WIFI_AP_CHANNEL;
+  // Para escuchar, en modo estación y sin entrar en ninguna red.
+  WiFi.mode(WIFI_STA);
+  WiFi.disconnect();
+  const int MAX_HEARD = 40;
+  uint8_t channels[MAX_HEARD];
+  int8_t rssi[MAX_HEARD];
+  int found = WiFi.scanNetworks(false, true);  // también las redes ocultas
+  int heard = 0;
+  for (int i = 0; i < found && heard < MAX_HEARD; i++, heard++) {
+    channels[heard] = WiFi.channel(i);
+    rssi[heard] = WiFi.RSSI(i);
+  }
+  WiFi.scanDelete();
+  uint8_t channel = quietestChannel(channels, rssi, heard, ESP.getChipId());
+  Serial.printf("Redes alrededor: %d. Mi wifi va en el canal %u, el más libre.\n", found < 0 ? 0 : found, channel);
+  return channel;
+}
+
 void startAccessPoint() {
+  uint8_t channel = quietChannel();
   char name[33];
   snprintf(name, sizeof(name), "%s%04X", WIFI_AP_PREFIX, (unsigned)(ESP.getChipId() & 0xFFFF));
   boardName = name;
   WiFi.mode(WIFI_AP);
   WiFi.softAPConfig(AP_IP, AP_IP, IPAddress(255, 255, 255, 0));
-  WiFi.softAP(name, WIFI_AP_PASSWORD, 1, 0, AP_MAX_CLIENTS);
+  WiFi.softAP(name, WIFI_AP_PASSWORD, channel, 0, AP_MAX_CLIENTS);
   // El DNS contesta «soy yo» a cualquier nombre: así el móvil, al comprobar
   // si hay internet, llega a la placa y abre la web.
   dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
